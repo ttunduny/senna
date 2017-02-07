@@ -1,0 +1,1 @@
+ALTER TABLE `ospos_employees`  ADD `gross_sal` INT NOT NULL  AFTER `person_id`,  ADD `nhif` INT NOT NULL  AFTER `gross_sal`,  ADD `nssf` INT NOT NULL  AFTER `nhif`,  ADD `tax` INT NOT NULL  AFTER `nssf`;
