@@ -1,6 +1,6 @@
 #receipt_wrapper
 {
-	width:190%;	
+	width:290%;	
 }
 
 #receipt_header
@@ -44,7 +44,7 @@
 	width:120%;
 }
 */
-/*#receipt_items td
+#receipt_items td
 {
 	position:relative;
 	padding:3px;
@@ -56,7 +56,7 @@
 #receipt_items tr {
 	margin-bottom:5px;	
 	font-size:280%;
-}*/
+}
 
 .short_name
 {

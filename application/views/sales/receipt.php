@@ -1,23 +1,5 @@
 <?php $this->load->view("partial/header"); ?>
-<link rel="stylesheet" type="text/css" href="css/dataTables.min.css" />
-<script src="<?php echo base_url();?>js/dataTables.min.js"></script>
-<style type="text/css">
-	table.dataTable tbody td {
-	    word-break: break-word;
-	    vertical-align: top;
-	}
-	<style>
-	@media print {
-		
-		table.to_be_printed tbody td, 
-		table.to_be_printed *, 
-		table.to_be_printed_ancestor {
-			word-break: break-word;
-	    	vertical-align: top;
-		}
-	}
-</style>
-</style>
+
 <?php
 if (isset($error_message))
 {
@@ -38,62 +20,88 @@ if (isset($error_message))
 </div>
 
 <div id="receipt_wrapper">
+	<img  src="<?php echo base_url().'images/senna.jpg';?>" border="0" alt="Menubar Image " 
+				height="400%" width="200%" style ="margin-left: 4500px;">
 	
-	<div id="receipt_header">
-		<?php
-		if ($this->Appconfig->get('company_logo') == '') 
-        { 
-        ?>
-			<div id="company_name"><?php echo $this->config->item('company'); ?></div>
-		<?php 
-		}
-		else 
-		{ 
-		?>
-			<div id="company_name"><?php echo $this->config->item('company'); ?></div>			
-		<?php
-		}
-		?>
-		<div id="company_name"><?php echo nl2br($this->config->item('address')); ?></div>
-		<div id="company_phone"><?php echo $this->config->item('phone'); ?></div>
+<table id="receipt_items" style="font-size: 84px !important; margin-left: 4500px;">
+
+	 <tr>
+			<td>
+			<br>
+				<?php echo nl2br($this->config->item('address')); ?>
+				<br>
+				<?php echo nl2br($this->config->item('phone')); ?>
+			</td>
+		</tr>
+<br>
+		
+</table>
+
+<table id="receipt_items" style="font-size: 84px !important;">
+<tr>
+	<td>
 		<br>
-		<div id="company_name"><?php echo $receipt_title; ?></div>
-		<div id="company_name"><?php echo $transaction_time ?></div>
-	</div>
-<br><br><br>
-	<div id="receipt_general_info">
+		<?php echo $receipt_title; ?>
+		<br>
+		<?php echo $transaction_time ?>
+	</td>
+</tr>
+</table>
+<hr>
+<table id="receipt_items" style="font-size: 84px !important;">
+	<tr>
+	<td>
+		<br>
 		<?php
 		if(isset($customer))
 		{
 		?>
-			<div id="company_name" style="font-size: 12px"><?php echo $this->lang->line('customers_customer').": ".$customer; ?></div>
+			<font>Customer name:</font><?php echo $customer; ?>
 		<?php
 		}
 		?>
 		
-		<div id="company_name"><?php echo $this->lang->line('sales_id').": ".$sale_id; ?></div>
+	</td>
+	</tr>
 
-		<?php
+	 <tr>
+	 <td>
+	 
+	 <font>Sales ID:</font>
+	 <?php echo $sale_id; ?>
+	 </td>
+	 </tr>
+
+	 <tr>
+	 <td>
+	 <font>Invoice #</font>
+			<?php
 		if (!empty($invoice_number))
 		{
 		?>
-		<br><br><br>
-			<div id="company_name"><?php echo $this->lang->line('recvs_invoice_number').": ".$invoice_number; ?></div>	
+					
 		<?php 
 		}
 		?>
-
-		<div id="company_name"><?php echo $this->lang->line('employees_employee').": ".$employee; ?></div>
+		<br>
+				<font>Employee:</font><?php echo $employee; ?>
+			</td>
+		</tr>
+		<tr>
+		<td>
 		<br><br><br>
-	</div>
+		</td>
+		</tr>
+</table>
+<br>
 
-	<table id="receipt_items" style="font-size: 72px !important">
+	<table id="receipt_items" style="font-size: 84px !important">
 		<thead>
 			<tr>
-				<th ><?php echo $this->lang->line('sales_description_abbrv'); ?></th>
-				<th ><?php echo $this->lang->line('sales_price'); ?></th>
-				<th ><?php echo $this->lang->line('sales_quantity'); ?></th>
-				<th  class="total-value"><?php echo $this->lang->line('sales_total'); ?>(Kshs)</th>
+				<th ><font style="font-size: 190%;">Desc</font></th>
+				<th ><font style="font-size: 190%;">Price</font></th>
+				<th ><font style="font-size: 190%;">Quantity</font></th>
+				<th  class="total-value"><font style="font-size: 190%;">Total(Kshs)</font></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -107,10 +115,7 @@ if (isset($error_message))
 				<td><?php echo $item['quantity']?></td>
 				<td><div class="total-value"><?php echo ($item[($this->Appconfig->get('show_total_discount') ? 'total' : 'discounted_total')]); ?></div></td>
 			</tr>
-			<tr>
-				<td colspan="2"><?php echo $item['description']; ?></td>
-				<td><?php echo $item['serialnumber']; ?></td>
-			</tr>
+			
 		
 	
 		<?php
@@ -198,13 +203,21 @@ if (isset($error_message))
 		<tr>
 			<td colspan="3" style='text-align:right;'> <?php echo $this->lang->line($amount_change >= 0 ? ($only_sale_check ? 'sales_check_balance' : 'sales_change_due') : 'sales_amount_due') ; ?> </td>
 			<td style='text-align:right'><?php echo to_currency($amount_change); ?></td>
+		
 		</tr>
+	
+		<tr>
+
+		<td>
+		<br>
+	<?php echo nl2br($this->config->item('return_policy')); ?>
+		</td>
+		</tr>
+
 		</tbody>
 	</table>
-<hr>
-	<div id="company_name">
-		<?php echo nl2br($this->config->item('return_policy')); ?>
-	</div>
+
+	
 
 
 </div>

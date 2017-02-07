@@ -149,7 +149,8 @@ class Employee extends Person
 		$this->db->trans_complete();		
 		return $success;
 	}
-	
+
+		
 	/*
 	Deletes a list of employees
 	*/
@@ -179,7 +180,7 @@ class Employee extends Person
 	/*
 	Get search suggestions to find employees
 	*/
-	function get_search_suggestions($search,$limit=5)
+	function get_search_suggestions($search,$limit=5,$search_custom=0, $is_deleted=0)
 	{
 		$suggestions = array();
 		
@@ -363,6 +364,5 @@ class Employee extends Person
 		$this->db->where('person_id',$person_id);
 		return $this->db->get()->result_array();
 	}
-	
-}
+	}
 ?>

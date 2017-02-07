@@ -216,6 +216,32 @@ class Supplier extends Person
 		return $suggestions;
 	
 	}
+
+	
+function get_employee_search_suggestions($search,$limit=25)
+	{
+		$suggestions = array();
+		
+		$this->db->from('employees');
+		$this->db->join('people','employees.person_id=people.person_id');	
+		$this->db->where("(first_name LIKE '%".$this->db->escape_like_str($search)."%' or 
+		last_name LIKE '%".$this->db->escape_like_str($search)."%' or 
+		CONCAT(`first_name`,' ',`last_name`) LIKE '%".$this->db->escape_like_str($search)."%') and deleted=0");
+		$this->db->order_by("last_name", "asc");		
+		$by_name = $this->db->get();
+		foreach($by_name->result() as $row)
+		{
+			$suggestions[]=$row->person_id.'|'.$row->first_name.' '.$row->last_name;		
+		}
+		
+		//only return $limit suggestions
+		if(count($suggestions > $limit))
+		{
+			$suggestions = array_slice($suggestions, 0,$limit);
+		}
+		return $suggestions;
+
+	}
 	
 	/*
 	Get search suggestions to find suppliers

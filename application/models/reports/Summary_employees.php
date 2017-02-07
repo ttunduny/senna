@@ -14,7 +14,7 @@ class Summary_employees extends Report
 	
 	public function getData(array $inputs)
 	{
-		$this->db->select('CONCAT(first_name, " ", last_name) as employee, sum(quantity_purchased) as quantity_purchased, sum(subtotal) as subtotal, sum(total) as total, sum(tax) as tax, sum(cost) as cost, sum(profit) as profit', false);
+		$this->db->select('CONCAT(first_name, " ", last_name) as employee, sum(quantity_purchased) as quantity_purchased, sum(subtotal) as subtotal, sum(total) as total, sum(ospos_sales_items_temp.tax) as tax, sum(cost) as cost, sum(profit) as profit', false);
 		$this->db->from('sales_items_temp');
 		$this->db->join('employees', 'employees.person_id = sales_items_temp.employee_id');
 		$this->db->join('people', 'employees.person_id = people.person_id');
@@ -37,7 +37,7 @@ class Summary_employees extends Report
 	
 	public function getSummaryData(array $inputs)
 	{
-		$this->db->select('sum(subtotal) as subtotal, sum(total) as total, sum(tax) as tax, sum(cost) as cost, sum(profit) as profit');
+		$this->db->select('sum(subtotal) as subtotal, sum(total) as total, sum(ospos_sales_items_temp.tax) as tax, sum(cost) as cost, sum(profit) as profit');
 		$this->db->from('sales_items_temp');
 		$this->db->join('employees', 'employees.person_id = sales_items_temp.employee_id');
 		$this->db->join('people', 'employees.person_id = people.person_id');

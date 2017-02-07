@@ -117,8 +117,7 @@ class Receivings extends Secure_area
     			$receiving_quantity = $items[$my_count]['receiving_quantity'];
 
     		}
-    		// echo "<pre>";print_r($items);
-    		// $receiving_quantity = $items[1]['receiving_quantity'];
+    		
     	}
     	
 		$price = $this->input->post('price');
@@ -370,7 +369,7 @@ class Receivings extends Secure_area
 		$data['payment_options']=array(
 			$this->lang->line('sales_cash') => ('Cash'),
 			$this->lang->line('sales_check') => ('Cheque'),
-			$this->lang->line('sales_credit') => ('Credid Card'),
+			$this->lang->line('sales_credit') => ('Credit Card'),
 			$this->lang->line('sales_giftcard') => ('Debit Card'),
 			$this->lang->line('sales_debit') => ('Gift Card'),
 			$this->lang->line('mpesa') => ('MPESA')

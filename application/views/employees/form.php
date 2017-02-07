@@ -46,6 +46,52 @@ $password_label_attributes = $person_info->person_id == "" ? array('class'=>'req
 </div>
 </fieldset>
 
+<!-- Salary info -->
+<fieldset id="employee_salary_info">
+<legend>Employee Salary Info</legend>
+<div class="field_row clearfix">	
+<label>Gross Salary:</label>
+	<div class='form_field'>
+	<?php echo form_input(array(
+		'name'=>'gross_sal',
+		'id'=>'gross_sal',
+		'value'=>$person_info->gross_sal));?>
+	</div>
+</div>
+
+<div class="field_row clearfix">	
+<label>Monthly NHIF(%):</label>
+	<div class='form_field'>
+	<?php echo form_input(array(
+		'name'=>'nhif',
+		'id'=>'nhif',
+		'value'=>$person_info->nhif));?>
+	</div>
+</div>
+
+<div class="field_row clearfix">	
+<label>Monthly NSSF(%):</label>
+	<div class='form_field'>
+	<?php echo form_input(array(
+		'name'=>'nssf',
+		'id'=>'nssf',
+		'value'=>$person_info->nssf));?>
+	</div>
+</div>
+
+<div class="field_row clearfix">	
+<label>Monthly TAX(%):</label>
+	<div class='form_field'>
+	<?php echo form_input(array(
+		'name'=>'tax',
+		'id'=>'tax',
+		'value'=>$person_info->tax));?>
+	</div>
+</div>
+</fieldset>
+
+
+<!-- Permission info -->
 <fieldset id="employee_permission_info">
 <legend><?php echo $this->lang->line("employees_permission_info"); ?></legend>
 <p><?php echo $this->lang->line("employees_permission_desc"); ?></p>
@@ -210,4 +256,5 @@ $(document).ready(function()
 		}
 	});
 });
+
 </script>

@@ -72,16 +72,21 @@ class Employees extends Person_controller
 			'city'=>$this->input->post('city'),
 			'state'=>$this->input->post('state'),
 			'zip'=>$this->input->post('zip'),
-			'country'=>$this->input->post('country'),
-			'comments'=>$this->input->post('comments')
+			'country'=>$this->input->post('country')
+			
 		);
 		$grants_data = $this->input->post('grants') != null ? $this->input->post('grants') : array();
 		
+
 		//Password has been changed OR first time password set
 		if ( $this->input->post('password') != '' )
 		{
 			$employee_data=array(
 				'username'=>$this->input->post('username'),
+				'nhif'=>$this->input->post('nhif'),
+				'nssf'=>$this->input->post('nssf'),
+				'tax'=>$this->input->post('tax'),
+				'gross_sal'=>$this->input->post('gross_sal'),
 				'password'=>md5($this->input->post('password'))
 			);
 		}

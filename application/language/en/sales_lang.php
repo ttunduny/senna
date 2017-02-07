@@ -94,6 +94,7 @@ $lang["sales_show_invoice"] = "invoice";
 $lang["sales_show_receipt"] = "receipt";
 $lang["sales_start_typing_customer_name"] = "Start Typing customer's name...";
 $lang["sales_start_typing_item_name"] = "Start Typing item's name or scan barcode...";
+$lang["sal_start_typing_emp_name"] = "Start Typing employee's name or username...";
 $lang["sales_stock_location"] = "Stock location";
 $lang["sales_sub_total"] = "Sub Total";
 $lang["sales_successfully_deleted"] = "You have successfully deleted";

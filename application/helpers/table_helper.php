@@ -396,6 +396,33 @@ function get_giftcards_manage_table( $giftcards, $controller )
 	return $table;
 }
 
+function get_salary_manage_table( $giftcards, $controller )
+{
+	$CI =& get_instance();
+	$table='<table class="tablesorter" id="sortable_table">';
+	
+	$headers = array('<input type="checkbox" id="select_all" />', 
+	$CI->lang->line('emp_sal_name'),
+	$CI->lang->line('sal_gross'),
+	$CI->lang->line('sal_nssf'),
+	$CI->lang->line('sal_nhif'),
+	$CI->lang->line('sal_tax'),
+	$CI->lang->line('sal_total'),
+	 '&nbsp', 
+	);
+	
+	$table.='<thead><tr>';
+	foreach($headers as $header)
+	{
+		$table.="<th>$header</th>";
+	}
+	$table.='</tr></thead><tbody>';
+	$table.=get_giftcards_manage_table_data_rows( $giftcards, $controller );
+	$table.='</tbody></table>';
+
+	return $table;
+}
+
 /*
 Gets the html data rows for the giftcard.
 */
@@ -411,7 +438,7 @@ function get_giftcards_manage_table_data_rows( $giftcards, $controller )
 	
 	if($giftcards->num_rows()==0)
 	{
-		$table_data_rows.="<tr><td colspan='11'><div class='warning_message' style='padding:7px;'>".$CI->lang->line('giftcards_no_giftcards_to_display')."</div></td></tr>";
+		$table_data_rows.="<tr><td colspan='11'><div class='warning_message' style='padding:7px;'>".$CI->lang->line('salary_no_salary_to_display')."</div></td></tr>";
 	}
 	
 	return $table_data_rows;
