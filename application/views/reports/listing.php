@@ -54,6 +54,12 @@
 		?>
 		</ul>
 	</li>
+	<li><h3>Statement of Financial Position</h3>
+		<ul>
+		<li><a href="<?php echo site_url('reports/financial_position');?>">Show Financial Position</a></li>
+		
+		</ul>
+	</li>
 	<?php 
 	}
 	?>

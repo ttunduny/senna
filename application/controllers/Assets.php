@@ -422,6 +422,41 @@ class Assets extends Secure_area implements iData_controller
 			echo json_encode(array('success'=>false, 'message'=>$this->lang->line('assets_error_adding_updating').' '.$asset_data['name'], 'id'=>-1));
 		}
 	}
+
+		function save_salo($salary_id=-1)
+	{
+		
+		$today =date("Y-m-d"); 
+		$salary_data = array(
+			'gross_sal'=>$this->input->post('sal_gross'),
+			'nhif'=>$this->input->post('sal_nhif'),
+			'nssf'=>$this->input->post('sal_nssf'),
+			'tax'=>$this->input->post('sal_tax'),
+			'net_sal'=>$this->input->post('sal_net'),
+			// 'pay_date'=>$today,
+			'salary_id'=>$this->input->post('emp_sal_no'),
+		);
+		
+		
+		$cur_salary_info = $this->salaryedit->get_info($salary_id);
+		
+		if($this->Asset->save_salo($salary_data,$salary_id))
+		{
+			$success = TRUE;
+			$new_salary = FALSE;
+			//New item
+			if ($salary_id==-1)
+			{
+				$salary_id = $salary_data['salary_id'];
+				$new_salary = TRUE;
+			}
+			
+		}
+		else//failure
+		{
+			echo json_encode(array('success'=>false, 'message'=>$this->lang->line('assets_error_adding_updating').' '.$asset_data['name'], 'id'=>-1));
+		}
+	}
 	
 	function check_item_number()
 	{

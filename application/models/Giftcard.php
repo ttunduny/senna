@@ -209,6 +209,34 @@ class Giftcard extends CI_Model
 
 		return $suggestions;
 	}
+
+	function get_salary_suggestions($search, $limit=25)
+	{
+		$suggestions = array();
+
+		$this->db->distinct();
+		$this->db->from('salary');
+		$this->db->join('people', 'salary.person_id=people.person_id', 'left');
+		$this->db->like('pay_date', $search);
+		$this->db->where('isDeleted', 0);
+		$this->db->order_by('pay_date', 'asc');
+		$this->db->group_by('pay_date', 'asc');
+		$by_number = $this->db->get();
+		
+		foreach($by_number->result() as $row)
+		{
+			$suggestions[]=$row->pay_date;
+		}
+
+ 		
+		//only return $limit suggestions
+		if(count($suggestions > $limit))
+		{
+			$suggestions = array_slice($suggestions, 0, $limit);
+		}
+
+		return $suggestions;
+	}
 	
 	/*
 	 Get search suggestions to find customers
@@ -266,6 +294,24 @@ class Giftcard extends CI_Model
 
 		return $this->db->get();
 	}
+
+	function search_salary($search, $rows = 0, $limit_from = 0)
+	{
+		
+		$this->db->from('salary');
+		$this->db->join('people', 'salary.person_id=people.person_id', 'left');
+		$this->db->like('2017-02-01', $this->db->escape_like_str($search));
+	
+		$this->db->where('salary.isDeleted', 0);
+		$this->db->order_by('pay_date', 'asc');
+
+		if ($rows > 0)
+		{
+			$this->db->limit($rows, $limit_from);
+		}
+
+		return $this->db->get();
+	}
 	
 	function get_found_rows($search)
 	{
@@ -279,6 +325,16 @@ class Giftcard extends CI_Model
 		$this->db->or_like('giftcards.person_id', $this->db->escape_like_str($search));
 		$this->db->group_end();
 		$this->db->where('giftcards.deleted', 0);
+		return $this->db->get()->num_rows();
+	}
+
+	function get_found_salary_rows($search)
+	{
+		$this->db->from('salary');
+		$this->db->join('people', 'salary.person_id=people.person_id', 'left');
+		$this->db->like('2017-02-01', $this->db->escape_like_str($search));
+	
+		$this->db->where('salary.isDeleted', 0);
 		return $this->db->get()->num_rows();
 	}
 	

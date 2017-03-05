@@ -721,6 +721,82 @@ class Reports extends Secure_area
 		$this->load->view("reports/specific_input",$data);
 	}
 
+	function financial_position()
+	{
+		$data = $this->_get_common_report_data();
+		$final_array = array();
+		$sum_debits = 0;
+		$sum_credits = 0;
+		$sales = $this->Financials->get_sales()->result_array();		
+		$assets = $this->Financials->get_assets()->result_array();	
+		$assets_depreciation = null;		
+		
+		for ($i=0; $i <count($assets) ; $i++) { 
+			$depreciation_rate = $assets[$i]['depreciation'];
+			$name = $assets[$i]['name']." depreciation";
+			$resale_price = $assets[$i]['resale_price'];
+			$date_of_purchase = $assets[$i]['time'];
+			$amount = $assets[$i]['amount'];
+	    	$diff = strtotime(date("M d Y ")) - (strtotime($date_of_purchase));
+
+		    $days_diff = floor($diff/3600/24);
+		    $years = round(($days_diff/365),0);
+		    
+		    $depreciation = 0;		    
+		    $new_price = $amount;
+		    for ($j=1; $j <=$years ; $j++) { 
+		        $current_depreciation= $new_price * ($depreciation_rate/100);
+		        $depreciation +=$current_depreciation;                    
+		        $new_price -= $current_depreciation;                    
+		    }
+		    $current_value = $amount - $depreciation;  
+		    $assets_depreciation[] = array('name'=>$name,'amount'=>$depreciation); 
+		}
+		$assets = $this->add_array_type($assets,'debits');
+		$assets_depreciation = $this->add_array_type($assets_depreciation,'credits');
+		$sales = $this->add_array_type($sales,'debits');
+		array_push($final_array, $sales);
+		array_push($final_array, $assets);
+		array_push($final_array, $assets_depreciation);
+	    $final_array = call_user_func_array('array_merge', $final_array);
+	    $this->aasort($final_array,"name");
+		// echo "<pre>";print_r($final_array);die;
+		foreach ($final_array as $key => $values) {											
+			$amount = $values['amount'];
+			$type = $values['type'];
+			if($type=='debits'){						
+				$sum_debits += $amount;						
+			}else{
+				$sum_credits += $amount;						
+			}	
+		}
+		$data['title'] = "Financial Position";
+		$data['subtitle'] = "As at ".date('d F Y');
+		$data['final_array'] = $final_array;
+		$data['totals'] = array('sum_debits'=>$sum_debits,'sum_credits'=>$sum_credits);
+		$this->load->view("reports/financial_position",$data);
+	}
+	function aasort (&$array, $key) {
+	    $sorter=array();
+	    $ret=array();
+	    reset($array);
+	    foreach ($array as $ii => $va) {
+	        $sorter[$ii]=$va[$key];
+	    }
+	    asort($sorter);
+	    foreach ($sorter as $ii => $va) {
+	        $ret[$ii]=$array[$ii];
+	    }
+	    $array=$ret;
+	}
+
+
+	function add_array_type($arrayname,$type){
+		foreach ($arrayname as &$array) {
+			$array['type'] =$type;
+		}
+		return $arrayname;
+	}
 	function specific_customer($start_date, $end_date, $customer_id, $sale_type, $export_excel=0)
 	{
 		$this->load->model('reports/Specific_customer');

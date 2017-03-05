@@ -101,6 +101,33 @@ function post_asset_form_submit(response)
     }
 }
 
+function post_salary_form_submit(response)
+{
+    console.log(response);  
+    if(!response.success)
+    {
+        set_feedback(response.message,'error_message',true);
+    }
+    else
+    {
+        //This is an update, just update one row
+        if(jQuery.inArray(response.salary_id,get_visible_checkbox_ids()) != -1)
+        {
+            update_row(response.salary_id,'<?php echo site_url("$controller_name/get_row")?>',resize_thumbs);
+            set_feedback(response.message,'success_message',false);
+        }
+        else //refresh entire table
+        {
+            do_search(true,function()
+            {
+                //highlight new row
+                hightlight_row(response.salary_id);
+                set_feedback(response.message,'success_message',false);
+            });
+        }
+    }
+}
+
 function post_bulk_form_submit(response)
 {
     if(!response.success)

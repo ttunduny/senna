@@ -15,9 +15,32 @@ class Salaries extends Secure_area
 		$this->_reload();
 	}
 
+	function search()
+	{
+		$search = $this->input->post('search') != '' ? $this->input->post('search') : null;
+		$limit_from = $this->input->post('limit_from');
+		$lines_per_page = $this->Appconfig->get('lines_per_page');
+
+		$giftcards = $this->Giftcard->search_salary($search, $lines_per_page, $limit_from);
+		$total_rows = $this->Giftcard->get_found_salary_rows($search);
+		// $links = $this->_initialize_pagination($this->Giftcard, $lines_per_page, $limit_from, $total_rows);
+		$data_rows = get_salary_manage_table($giftcards, $this);
+
+		echo json_encode(array('total_rows' => $total_rows, 'rows' => $data_rows, 'pagination' => $links));
+	}
+
 	function employee_search()
 	{
 		$suggestions = $this->Supplier->get_employee_search_suggestions($this->input->post('q'),$this->input->post('limit'));
+		echo implode("\n",$suggestions);
+	}
+
+	/*
+	Gives search suggestions based on what is being searched for
+	*/
+	function suggest()
+	{
+		$suggestions = $this->Giftcard->get_salary_suggestions($this->input->post('q'), $this->input->post('limit'));
 		echo implode("\n",$suggestions);
 	}
 

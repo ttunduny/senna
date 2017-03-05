@@ -130,6 +130,8 @@ class Asset extends CI_Model
 		return $this->db->get();
 	}
 
+		
+
 	public function get_all_categories($rows=0, $limit_from=0)
 	{
 		$this->db->from('asset_category');			
@@ -181,6 +183,68 @@ class Asset extends CI_Model
 			}
 			
 			return $asset_obj;
+		}
+	}
+
+	function get_info_salary($salary_id)
+	{
+		$this->db->select("salary.id as salary_id,people.person_id as person_id,people.first_name as first_name, people.last_name as last_name,salary.gross_sal as gross_sal, salary.nssf as nssf, salary.nhif as nhif, salary.tax as tax, salary.pay_date as pay_date,salary.net_sal as net_sal");
+		$this->db->from('salary');
+		$this->db->join('people', 'people.person_id = salary.person_id', 'left');
+		$this->db->join('employees', 'people.person_id = employees.person_id', 'left');
+		$this->db->where('salary.id',$salary_id);
+		$query = $this->db->get();
+		
+		if($query->num_rows()==1)
+		{
+			return $query->row();
+		}
+		else
+		{
+			//Get empty base parent object, as $supplier_id is NOT an supplier
+			$person_obj=parent::get_info(-1);
+			
+			//Get all the fields from supplier table
+			$fields = $this->db->list_fields('salary');
+			
+			//append those fields to base parent object, we we have a complete empty object
+			foreach ($fields as $field)
+			{
+				$person_obj->$field='';
+			}
+			
+			return $person_obj;
+		}
+	}
+
+	function get_info_expense($expense_id)
+	{
+		$this->db->select("expenses.expense_id as expense_id,people.person_id as person_id,people.first_name as first_name, people.last_name as last_name,expenses.name as name, expense_category.category_name as category_name, expenses.amount as amount, expenses.date_paid as date_paid");
+		$this->db->from('expenses');
+		$this->db->join('people', 'people.person_id = expenses.created_by', 'left');
+		$this->db->join('expense_category', 'expense_category.id = expenses.category', 'left');
+		$this->db->where('expenses.expense_id',$expense_id);
+		$query = $this->db->get();
+		
+		if($query->num_rows()==1)
+		{
+			return $query->row();
+		}
+		else
+		{
+			//Get empty base parent object, as $supplier_id is NOT an supplier
+			$person_obj=parent::get_info_expense('-1');
+			
+			//Get all the fields from supplier table
+			$fields = $this->db->list_fields('expenses');
+			
+			//append those fields to base parent object, we we have a complete empty object
+			foreach ($fields as $field)
+			{
+				$person_obj->$field='';
+			}
+			
+			return $person_obj;
 		}
 	}
 
@@ -238,6 +302,23 @@ class Asset extends CI_Model
 		return $this->db->update('assets', $asset_data);
 	}
 
+	public function save_salo(&$salary_info, $salary_id=false)
+	{
+		// echo "<pre>";print_r($asset_data)
+		if (!$salary_id or !$this->exists($salary_id))
+		{			
+			if($this->db->insert('salary',$salary_info))
+			{
+				$salary_info['id']=$this->db->insert_id();
+				return true;
+			}
+			return false;
+		}
+
+		$this->db->where('id', $salary_id);
+
+		return $this->db->update('salary', $salary_info);
+	}
 	/*
 	Updates multiple items at once
 	*/

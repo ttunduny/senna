@@ -1,11 +1,11 @@
 <?php
 require_once ("Person_controller.php");
 
-class Salaryedit extends Person_controller
+class Expenses extends Person_controller
 {
 	function __construct()
 	{
-		parent::__construct('Salaries');
+		parent::__construct('Expenses');
 	}
 	
 	function index($limit_from=0)
@@ -13,13 +13,12 @@ class Salaryedit extends Person_controller
 		$data['controller_name'] = $this->get_controller_name();
 		$data['form_width'] = $this->get_form_width();
 		$lines_per_page = $this->Appconfig->get('lines_per_page');
-		$Salaries = $this->Supplier->get_all_salary($lines_per_page);
+		$Expenses = $this->Supplier->get_all_expense($lines_per_page);
 		
 		$data['links'] = $this->_initialize_pagination($this->Supplier, $lines_per_page, $limit_from);
-		$data['manage_table'] = get_salary_manage_table($Salaries, $this);
-		$this->load->view('salaries/salaryedit', $data);
+		$data['manage_table'] = get_expense_manage_table($Expenses, $this);
+		$this->load->view('expenses/manage', $data);
 	}
-
 	/*
 	Returns Supplier table data rows. This will be called with AJAX.
 	*/
@@ -45,17 +44,23 @@ class Salaryedit extends Person_controller
 		$suggestions = $this->Supplier->get_search_suggestions($this->input->post('q'),$this->input->post('limit'));
 		echo implode("\n",$suggestions);
 	}
-	
 	/*
 	Loads the supplier edit form
 	*/
-	function view($asset_id=-1)
+	function view($expense_id=-1)
 	{
-		$salary_data['salary_info']=$this->Asset->get_info_salary($asset_id);		
-			                
+		$expense_data['expense_info']=$this->Asset->get_info_expense($expense_id);	
 		// $data['manage_table'] = get_assets_manage_table( $this->Asset->get_all($lines_per_page, $limit_from), $this );
 		// echo "<pre>";print_r($data);die;
-		$this->load->view("salaries/form", $salary_data);
+		$this->load->view("expenses/form", $expense_data);
+	}
+
+	function view2($expense_id=-1)
+	{
+	
+		// $data['manage_table'] = get_assets_manage_table( $this->Asset->get_all($lines_per_page, $limit_from), $this );
+		// echo "<pre>";print_r($data);die;
+		$this->load->view("expenses/form2");
 	}
 
 	function save($salary_id=-1)
@@ -78,33 +83,42 @@ class Salaryedit extends Person_controller
 		$this->db->query($sql);
 		redirect('salaryedit');
 		
-			}
+		
+	}
 	function edit()
 	{
-		$pay_date =date("Y-m-d"); 
-		$gross_sal = $_POST['sal_gross'];
-		$nhif = $_POST['sal_nhif'];
-		$nssf = $_POST['sal_nssf'];
-		$tax = $_POST['sal_tax'];
-		$net_sal = $_POST['sal_net'];
+		$exp_name = $_POST['exp_name'];
+		$exp_cat = $_POST['exp_cat'];
+		$exp_amount = $_POST['exp_amount'];
+		$expense_id = $_POST['expense_id'];
+
 		$salary_id = $_POST['emp_sal_no'];
 	
-		$sql = "UPDATE ospos_salary SET gross_sal = '$gross_sal',nhif = '$nhif', 
-		nssf = '$nssf',tax = '$tax',net_sal = '$net_sal'
-		WHERE id ='$salary_id' ";	
+		$sql = "UPDATE ospos_expenses SET name = '$exp_name',category = '$exp_cat', 
+		amount = '$exp_amount'
+		WHERE expense_id ='$expense_id' ";	
 		$this->db->query($sql);
 		
-		header("Location: http://$_SERVER[HTTP_HOST]/senna/index.php/salaryedit");
+		header("Location: http://$_SERVER[HTTP_HOST]/senna/index.php/expenses");
+	}
+
+	function add()
+	{
+		$pay_date =date("Y-m-d"); 
+		$exp_name = $_POST['exp_name'];
+		$exp_cat = $_POST['exp_cat'];
+		$emp_exp_id = $_POST['emp_exp_id'];
+		$exp_amount = $_POST['exp_amount'];
+		
+	
+		$sql = "INSERT INTO ospos_expenses (name,category,amount,date_paid,created_by)
+		VALUES ('$exp_name','$exp_cat','$exp_amount','$pay_date','$emp_exp_id') ";	
+
+		echo($this->db->query($sql));
+		
+		header("Location: http://$_SERVER[HTTP_HOST]/senna/index.php/expenses");
 	}
 	
-	/*
-	Inserts/updates a supplier
-	*/
-
-	
-	/*
-	This deletes salaries from the suppliers table
-	*/
 	function delete()
 	{
 		$salaries_to_delete=$this->input->post('emp_sal_no');
@@ -126,8 +140,8 @@ class Salaryedit extends Person_controller
 	function get_row()
 	{
 		$id = $this->input->post('row_id');
-		$salary_info = $this->Asset->get_info_salary($id);		
-		$data_row = get_salary_data_row($salary_info,$this);
+		$expense_info = $this->Expenses->get_info_expense($id);		
+		$data_row = get_expense_data_row($expense_info,$this);
 		
 		echo $data_row;
 

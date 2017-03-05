@@ -29,8 +29,6 @@ echo form_open('assets/save/'.$asset_info->asset_id,array('id'=>'asset_form', 'e
 	</div>
 </div>
 
-
-
 <div class="field_row clearfix">
 <?php echo form_label($this->lang->line('assets_category').':', 'category',array('class'=>'required wide')); ?>
 	<div class='form_field wide'>

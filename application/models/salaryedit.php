@@ -55,12 +55,12 @@ class Salaryedit extends CI_Model
 	/*
 	Gets information about a particular giftcard
 	*/
-	function get_info($giftcard_id)
+	function get_info($salary_id)
 	{
-		$this->db->from('giftcards');
-		$this->db->join('people', 'people.person_id=giftcards.person_id', 'left');
-		$this->db->where('giftcard_id', $giftcard_id);
-		$this->db->where('deleted', 0);
+		$this->db->from('salary');
+		$this->db->join('people', 'people.person_id=salary.person_id', 'left');
+		$this->db->where('salary.id', $salary_id);
+		$this->db->where('salary.isDeleted', 0);
 		
 		$query = $this->db->get();
 
@@ -120,13 +120,14 @@ class Salaryedit extends CI_Model
 	/*
 	Inserts or updates a giftcard
 	*/
-	function save(&$giftcard_data, $giftcard_id=false)
+	function save(&$salary_info, $salary_id=false)
 	{
-		if (!$giftcard_id or !$this->exists($giftcard_id))
+			
+		if (!$salary_id or !$this->exists($salary_id))
 		{
-			if($this->db->insert('giftcards', $giftcard_data))
+			if($this->db->insert('salary', $salary_info))
 			{
-				$giftcard_data['giftcard_id'] = $this->db->insert_id();
+				$salary_info['salary_id'] = $this->db->insert_id();
 
 				return true;
 			}
@@ -134,9 +135,9 @@ class Salaryedit extends CI_Model
 			return false;
 		}
 
-		$this->db->where('giftcard_id', $giftcard_id);
+		$this->db->where('id', $salary_id);
 
-		return $this->db->update('giftcards',$giftcard_data);
+		return $this->db->update('salary',$salary_info);
 	}
 
 	/*

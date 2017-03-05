@@ -1,5 +1,5 @@
 <?php
-class Salaries extends CI_Model
+class Expenses extends CI_Model
 {
 	function get_info($receiving_id)
 	{
@@ -8,6 +8,59 @@ class Salaries extends CI_Model
 		$this->db->where('person_id',$receiving_id);
 		return $this->db->get();
 	}
+
+	function get_info_expense($expense_id)
+	{
+		$this->db->select("expenses.expense_id as expense_id,people.person_id as person_id,people.first_name as first_name, people.last_name as last_name,expenses.name as name, expense_category.category_name as category_name, expenses.amount as amount, expenses.date_paid as date_paid");
+		$this->db->from('expenses');
+		$this->db->join('people', 'people.person_id = expenses.created_by', 'left');
+		$this->db->join('expense_category', 'expense_category.id = expenses.category', 'left');
+		$this->db->where('expenses.id',$expense_id);
+		$query = $this->db->get();
+		
+		if($query->num_rows()==1)
+		{
+			return $query->row();
+		}
+		else
+		{
+			//Get empty base parent object, as $supplier_id is NOT an supplier
+			$person_obj=parent::get_info(-1);
+			
+			//Get all the fields from supplier table
+			$fields = $this->db->list_fields('expenses');
+			
+			//append those fields to base parent object, we we have a complete empty object
+			foreach ($fields as $field)
+			{
+				$person_obj->$field='';
+			}
+			
+			return $person_obj;
+		}
+	}
+
+	public function get_all_expense($rows=0, $limit_from=0)
+	{
+		$this->db->select("expenses.expense_id as expense_id,people.person_id as person_id,people.first_name as first_name, people.last_name as last_name,expenses.name as name, expense_category.category_name as category_name, expenses.amount as amount, expenses.date_paid as date_paid");
+		$this->db->from('expenses');
+		$this->db->join('people', 'people.person_id = expenses.created_by', 'left');
+		$this->db->join('expense_category', 'expense_category.id = expenses.category', 'left');
+
+	
+		$this->db->where('expenses.isDeleted', 0);
+		
+		// order by name of item
+		$this->db->order_by('people.last_name', 'desc');
+
+		if ($rows > 0)
+		{
+			$this->db->limit($rows, $limit_from);
+		}
+
+		return $this->db->get();
+	}
+
 
 	
 	function get_invoice_count()

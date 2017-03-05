@@ -396,33 +396,6 @@ function get_giftcards_manage_table( $giftcards, $controller )
 	return $table;
 }
 
-function get_salary_manage_table( $giftcards, $controller )
-{
-	$CI =& get_instance();
-	$table='<table class="tablesorter" id="sortable_table">';
-	
-	$headers = array('<input type="checkbox" id="select_all" />', 
-	$CI->lang->line('emp_sal_name'),
-	$CI->lang->line('sal_gross'),
-	$CI->lang->line('sal_nssf'),
-	$CI->lang->line('sal_nhif'),
-	$CI->lang->line('sal_tax'),
-	$CI->lang->line('sal_total'),
-	 '&nbsp', 
-	);
-	
-	$table.='<thead><tr>';
-	foreach($headers as $header)
-	{
-		$table.="<th>$header</th>";
-	}
-	$table.='</tr></thead><tbody>';
-	$table.=get_giftcards_manage_table_data_rows( $giftcards, $controller );
-	$table.='</tbody></table>';
-
-	return $table;
-}
-
 /*
 Gets the html data rows for the giftcard.
 */
@@ -555,7 +528,26 @@ function get_assets_manage_table( $assets, $controller )
 
 	return $table;
 }
+function get_expense_manage_table( $expense, $controller )
+{
+	$CI =& get_instance();
+	$table='<table class="" id="sortable_table" class="stripe cell-border row-border display" cellspacing="0" width="100%">';
+	
+	$headers = array('<input type="checkbox" id="select_all" />','Serial Number', 
+	'Expense Name','Expense Category','Amount','Date Paid','Paid By',
+	'&nbsp', '&nbsp');
+	
+	$table.='<thead><tr>';
+	foreach($headers as $header)
+	{
+		$table.="<th>$header</th>";
+	}
+	$table.='</tr></thead><tbody>';
+	$table.=get_expenses_manage_table_data_rows( $expense, $controller );
+	$table.='</tbody></table>';
 
+	return $table;
+}
 /*
 Gets the html data rows for the item kits.
 */
@@ -570,6 +562,24 @@ function get_assets_manage_table_data_rows($assets, $controller)
 	}
 	
 	if(count($assets)==0)
+	{
+		$table_data_rows .= "<tr><td colspan='11'><div class='warning_message' style='padding:7px;'>".$CI->lang->line('assets_kits_no_item_kits_to_display')."</div></td></tr>";
+	}
+	
+	return $table_data_rows;
+}
+
+function get_expenses_manage_table_data_rows($expense, $controller)
+{
+	$CI =& get_instance();
+	$table_data_rows='';
+	
+	foreach($expense->result() as $value)
+	{
+		$table_data_rows .= get_expense_data_row($value, $controller);
+	}
+	
+	if(count($expense)==0)
 	{
 		$table_data_rows .= "<tr><td colspan='11'><div class='warning_message' style='padding:7px;'>".$CI->lang->line('assets_kits_no_item_kits_to_display')."</div></td></tr>";
 	}
@@ -621,8 +631,134 @@ function get_asset_data_row($value, $controller)
 	$table_data_row.='<td>'.$user.'</td>';
 	
 	
+	$table_data_row.='<td>'.anchor($controller_name."/view/$id", $CI->lang->line('common_edit'),array('class'=>'thickbox','title'=>$CI->lang->line('salaryedit_update'))).'</td>';
+	$table_data_row.='<td>'.anchor($controller_name."/count_details/$id", $CI->lang->line('common_det'),array('class'=>'thickbox','title'=>$CI->lang->line('salaryedit_details_count'))).'</td>';
+	$table_data_row.='</tr>';
+
+	return $table_data_row;
+}
+
+
+
+function get_salary_manage_table( $salary, $controller )
+{
+	$CI =& get_instance();
+	$table='<table class="" id="sortable_table" class="stripe cell-border row-border display" cellspacing="0" width="100%">';
+	
+	$headers = array('<input type="checkbox" id="select_all" />','SAL-NO', 
+	'EMPLOYEE-NAME','GROSS-SALARY','NHIF','NSSF','PAYE','PAY-DATE','NET-SALARY',
+	'&nbsp');
+	
+	$table.='<thead><tr>';
+	foreach($headers as $header)
+	{
+		$table.="<th>$header</th>";
+	}
+	$table.='</tr></thead><tbody>';
+	$table.=get_salary_table_data_rows( $salary, $controller );
+	$table.='</tbody></table>';
+
+	return $table;
+}
+
+
+function get_salary_table_data_rows($salary, $controller)
+{
+	$CI =& get_instance();
+	$table_data_rows='';
+	
+	foreach($salary->result() as $myvalue)
+	{
+		$table_data_rows .= get_salary_data_row($myvalue, $controller);
+	}
+	
+	if(count($salary)==0)
+	{
+		$table_data_rows .= "<tr><td colspan='11'><div class='warning_message' style='padding:7px;'>".$CI->lang->line('assets_kits_no_item_kits_to_display')."</div></td></tr>";
+	}
+	
+	return $table_data_rows;
+}
+
+function get_expense_table_data_rows($salary, $controller)
+{
+	$CI =& get_instance();
+	$table_data_rows='';
+	
+	foreach($salary->result() as $myvalue)
+	{
+		$table_data_rows .= get_expense_data_row($myvalue, $controller);
+	}
+	
+	if(count($salary)==0)
+	{
+		$table_data_rows .= "<tr><td colspan='11'><div class='warning_message' style='padding:7px;'>".$CI->lang->line('assets_kits_no_item_kits_to_display')."</div></td></tr>";
+	}
+	
+	return $table_data_rows;
+}
+
+function get_expense_data_row($myvalue, $controller)
+{
+	// echo "<pre>";print_r($myvalue);die;
+	$CI =& get_instance();
+	$controller_name=strtolower(get_class($CI));
+	$width = $controller->get_form_width();	
+
+	$id = $myvalue->expense_id;
+    $uname = ucfirst($myvalue->first_name).' '.ucfirst($myvalue->last_name); 
+    $expense_name = $myvalue->name;
+    $category = $myvalue->category_name;
+    $amount = $myvalue->amount;
+    $pay_date = $myvalue->date_paid;
+  
+	$table_data_row='<tr>';
+	$table_data_row.="<td><input type='checkbox' id='$id' value='".$id."'/></td>";
+	$table_data_row.='<td>'.$id.'</td>';
+	$table_data_row.='<td>'.$expense_name.'</td>';
+	$table_data_row.='<td>'.$category.'</td>';
+	$table_data_row.='<td>'.to_currency($amount).'</td>';
+	$table_data_row.='<td>'.$pay_date.'</td>';
+	$table_data_row.='<td>'.$uname.'</td>';
+	
+	
+	
 	$table_data_row.='<td>'.anchor($controller_name."/view/$id", $CI->lang->line('common_edit'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_update'))).'</td>';
-	$table_data_row.='<td>'.anchor($controller_name."/count_details/$id", $CI->lang->line('common_det'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_details_count'))).'</td>';
+	$table_data_row.='</tr>';
+
+	return $table_data_row;
+}
+
+function get_salary_data_row($myvalue, $controller)
+{
+	// echo "<pre>";print_r($myvalue);die;
+	$CI =& get_instance();
+	$controller_name=strtolower(get_class($CI));
+	$width = $controller->get_form_width();	
+	$id = $myvalue->salary_id;
+    $name = ucfirst($myvalue->first_name).' '.ucfirst($myvalue->last_name); 
+    $emp_no = $myvalue->person_id;
+    $gross_sal = $myvalue->gross_sal;
+    $nhif = $myvalue->nhif;
+    $nssf = $myvalue->nssf;
+    $tax = $myvalue->tax;
+    $pay_date = $myvalue->pay_date;
+    $net_sal = $myvalue->net_sal;
+  
+
+	$table_data_row='<tr>';
+	$table_data_row.="<td><input type='checkbox' id='$id' value='".$id."'/></td>";
+	$table_data_row.='<td>'.$emp_no.'</td>';
+	$table_data_row.='<td>'.$name.'</td>';
+	$table_data_row.='<td>'.$gross_sal.'</td>';
+	$table_data_row.='<td>'.$nhif.'</td>';
+	$table_data_row.='<td>'.$nssf.'</td>';
+	$table_data_row.='<td>'.$tax.'</td>';
+	$table_data_row.='<td>'.$pay_date.'</td>';
+	$table_data_row.='<td>'.$net_sal.'</td>';
+	
+	
+	$table_data_row.='<td>'.anchor($controller_name."/view/$id", $CI->lang->line('common_edit'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_update'))).'</td>';
 	$table_data_row.='</tr>';
 
 	return $table_data_row;

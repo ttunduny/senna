@@ -1,6 +1,8 @@
 <?php 
 
 $lang["module_config"] = "Store Config";
+$lang["module_expenses"] = "Expenses";
+$lang["module_expenses_desc"] = "Add, Update, Delete, and Search expenses";
 $lang["module_salaries"] = "Salaries";
 $lang["module_config_desc"] = "Change the store's configuration";
 $lang["module_customers"] = "Customers";
