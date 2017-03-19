@@ -720,61 +720,338 @@ class Reports extends Secure_area
 		$data['specific_input_data'] = $customers;
 		$this->load->view("reports/specific_input",$data);
 	}
+	// function financial_position($export_excel=0)
+	// {
+	// 	$this->load->model('reports/Financial_reports');
+	// 	$model = $this->Financial_reports;
+	// 	$filter = $this->generate_time();
+	// 	$headers = $model->getDataColumns();				
+	// 	$assets_data = $model->get_assets($filter);				
+	// 	$summary_data = array();
+	// 	$details_data = array();		
+	// 	// echo "<pre>";print_r($assets_data);die;
+	// 	foreach($assets_data['summary'] as $key=>$row)
+	// 	{
+	// 		$summary_data[] = array($row['name'],$row['amount'],'-');			
+	// 		foreach($assets_data['details'][$key] as $drow)
+	// 		{			 
+	// 			$details_data[$key][] = array($drow['name'], $drow['amount'], $drow['amount']);
+	// 		}
+			 
+	// 	}	
+	// 	foreach($assets_data['summary'] as $key=>$row)
+	// 	{			
+	// 		$depreciation_amount = 0;			
+	// 		$name = $row['name']." depreciation";			
+	// 		foreach($assets_data['details'][$key] as $drow)
+	// 		{
+	// 			$depreciation_rate = $drow['depreciation'];
+	// 			$dname = $drow['name']." depreciation";
+	// 			$resale_price = $drow['resale_price'];
+	// 			$date_of_purchase = $drow['time'];
+	// 			$amount = $drow['amount'];
+	// 	    	$diff = strtotime(date("M d Y ")) - (strtotime($date_of_purchase));
 
-	function financial_position()
+	// 		    $days_diff = floor($diff/3600/24);
+	// 		    $years = round(($days_diff/365),0);
+			    
+	// 		    $depreciation = 0;		    
+	// 		    $new_price = $amount;
+	// 		    for ($j=1; $j <=$years ; $j++) { 
+	// 		        $current_depreciation= $new_price * ($depreciation_rate/100);
+	// 		        $depreciation +=$current_depreciation;                    
+	// 		        $new_price -= $current_depreciation;                    
+	// 		    }
+	// 		    $depreciation_amount+=$depreciation;
+	// 		    $current_value = $amount - $depreciation;  
+	// 			$details_data[$key][] = array($dname, '-', $depreciation);
+	// 		}
+	// 		$summary_data[] = array($name,'-',$depreciation_amount);
+			 
+	// 	}	
+	// 	echo "<pre>";print_r($summary_data);
+	// 	echo "<pre>";print_r($details_data);die;
+	// 	$current_time = date('Y-m-d');
+	// 	$current_time = date('Y-12-31',strtotime("-1 year",strtotime($current_time)));					
+	// 	$data = array(
+	// 		"title" =>"Financial Report",
+	// 		"subtitle" =>"As at ".date('d F Y',strtotime($current_time)) ,
+	// 		"headers" => $model->getDataColumns(),
+	// 		"editable" => "sales",
+	// 		"summary_data" => $summary_data,
+	// 		"details_data" => $details_data,
+	// 		"header_width" => intval(100 / count($headers['summary'])),
+	// 		"overall_summary_data" => $model->getSummaryData(array('start_date'=>$current_time, 'end_date'=>$current_time, 'sale_type' => NULL, 'location_id' => 1)),
+	// 		"export_excel" => $export_excel
+	// 	);
+
+	// 	$this->load->view("reports/new_tabular_details",$data);
+	// }
+	function financial_position($export_excel=0)
 	{
-		$data = $this->_get_common_report_data();
-		$final_array = array();
-		$sum_debits = 0;
-		$sum_credits = 0;
-		$sales = $this->Financials->get_sales()->result_array();		
-		$assets = $this->Financials->get_assets()->result_array();	
-		$assets_depreciation = null;		
-		
-		for ($i=0; $i <count($assets) ; $i++) { 
-			$depreciation_rate = $assets[$i]['depreciation'];
-			$name = $assets[$i]['name']." depreciation";
-			$resale_price = $assets[$i]['resale_price'];
-			$date_of_purchase = $assets[$i]['time'];
-			$amount = $assets[$i]['amount'];
-	    	$diff = strtotime(date("M d Y ")) - (strtotime($date_of_purchase));
+		$this->load->model('reports/Financial_reports');
+		$model = $this->Financial_reports;
+		$filter = $this->generate_time();
+		$headers = $model->getDataColumns();				
+		$assets_data = $model->get_assets($filter);				
+		$summary_data = array();
+		$details_data = array();		
+		$depreciation_array = array();	
+		$totals_debit = 0;		
+		$totals_credit = 0;		
+		foreach($assets_data['summary'] as $key=>$row)
+		{
+			$depreciation_amount = 0;									
+			foreach($assets_data['details'][$key] as $drow)
+			{			 
+				$depreciation_rate = $drow['depreciation'];
+				$dname = $drow['name']." depreciation";
+				$resale_price = $drow['resale_price'];
+				$date_of_purchase = $drow['time'];
+				$amount = $drow['amount'];
+		    	$diff = strtotime(date("M d Y ")) - (strtotime($date_of_purchase));
+			    $days_diff = floor($diff/3600/24);
+			    $years = round(($days_diff/365),0);			    
+			    $depreciation = 0;		    
+			    $new_price = $amount;
+			    for ($j=1; $j <=$years ; $j++) { 
+			        $current_depreciation= $new_price * ($depreciation_rate/100);
+			        $depreciation +=$current_depreciation;                    
+			        $new_price -= $current_depreciation;                    
+			    }
+			    $depreciation_amount+=$depreciation;
+			    $current_value = $amount - $depreciation;  				
+			}
+			array_push($depreciation_array, $depreciation_amount);			 
+		}	
 
-		    $days_diff = floor($diff/3600/24);
-		    $years = round(($days_diff/365),0);
+		foreach($assets_data['summary'] as $key=>$row)
+		{				
+			$summary_data[] = array($row['name'],to_currency(round($row['amount'],2)),'-');		
+			$totals_debit+=round($row['amount'],2);			
+			foreach($assets_data['details'][$key] as $drow)
+			{
+				$details_data[$key][] = array($drow['name'], to_currency(round($drow['amount'],2)),'-');	
+			}							
+			 
+		}	
+		foreach($assets_data['summary'] as $key=>$row)
+		{		
+			$name = $row['name']." Depreciation";			
+			$summary_data[] = array($name,'-',to_currency(round($depreciation_array[$key],2)));		
+			$totals_credit+=round($depreciation_array[$key],2);									
+			$count = count($summary_data)-1;			
+			foreach($assets_data['details'][$key] as $drow)
+			{
+				$depreciation_rate = $drow['depreciation'];
+				$dname = $drow['name']." depreciation";
+				$resale_price = $drow['resale_price'];
+				$date_of_purchase = $drow['time'];
+				$amount = $drow['amount'];
+		    	$diff = strtotime(date("M d Y ")) - (strtotime($date_of_purchase));
+			    $days_diff = floor($diff/3600/24);
+			    $years = round(($days_diff/365),0);			    
+			    $depreciation = 0;		    
+			    $new_price = $amount;
+			    for ($j=1; $j <=$years ; $j++) { 
+			        $current_depreciation= $new_price * ($depreciation_rate/100);
+			        $depreciation +=$current_depreciation;                    
+			        $new_price -= $current_depreciation;                    
+			    }			    
+			    $current_value = $amount - $depreciation;  
+			    $details_data[$count][] = array($drow['name']." depreciation",'-',to_currency(round($depreciation,2)));						
+			}					 
+		}	
+		$sales_data = $model->get_sales('1');		
+		foreach($sales_data['summary'] as $key=>$row)
+		{				
+			$summary_data[] = array($row['name']." Sale",'-',to_currency(round($row['amount'],2)));	
+			$totals_credit+=round($row['amount'],2);									
+			$count = count($summary_data)-1;					
+			foreach($sales_data['details'][$key] as $drow)
+			{
+				$details_data[$count][] = array("Sale ".$drow['name'],'-', to_currency(round($drow['amount'],2)));	
+			}										 
+		}	
+
+		$sales_data_taxes = $model->get_sales_tax('1');				
+		foreach($sales_data_taxes['summary'] as $key=>$row)
+		{				
+			$summary_data[] = array($row['name']." Sale Taxes",to_currency(round($row['amount'],2)),'-');	
+			$totals_debit+=round($row['amount'],2);									
+			$count = count($summary_data)-1;					
+			foreach($sales_data['details'][$key] as $drow)
+			{
+				$details_data[$count][] = array("Sale Tax Item ".$drow['name'], to_currency(round($drow['amount'],2)),'-');	
+			}										 
+		}	
+		$employee_pay = $model->get_salaries('1');						
+		foreach($employee_pay['summary'] as $key=>$row)
+		{				
+			$summary_data[] = array('Employee Pay',to_currency(round($row['amount'],2)),'-');	
+			$totals_debit+=round($row['amount'],2);									
+			$count = count($summary_data)-1;					
+			foreach($employee_pay['details'][$key] as $drow)
+			{
+				$details_data[$count][] = array($drow['name'], to_currency(round($drow['amount'],2)),'-');	
+			}										 
+		}	
+
+		$employee_paye = $model->get_paye('1');						
+		foreach($employee_paye['summary'] as $key=>$row)
+		{	
+			$summary_data[] = array('Employee PAYE',to_currency(round($row['amount'],2)),'-');	
+			$totals_debit+=round($row['amount'],2);									
+			$count = count($summary_data)-1;					
+			foreach($employee_paye['details'][$key] as $drow)
+			{
+				$details_data[$count][] = array($drow['name'], to_currency(round($drow['amount'],2)),'-');	
+			}										 
+		}
+
+		$employee_nhif = $model->get_nhif('1');						
+		foreach($employee_nhif['summary'] as $key=>$row)
+		{				
+			$summary_data[] = array('Employee NHIF',to_currency(round($row['amount'],2)),'-');	
+			$totals_debit+=round($row['amount'],2);									
+			$count = count($summary_data)-1;					
+			foreach($employee_nhif['details'][$key] as $drow)
+			{
+				$details_data[$count][] = array($drow['name'], to_currency(round($drow['amount'],2)),'-');	
+			}										 
+		}	
+		$employee_nssf = $model->get_nssf('1');						
+		foreach($employee_nssf['summary'] as $key=>$row)
+		{				
+			$summary_data[] = array('Employee NSSF',to_currency(round($row['amount'],2)),'-');	
+			$totals_debit+=round($row['amount'],2);									
+			$count = count($summary_data)-1;					
+			foreach($employee_nssf['details'][$key] as $drow)
+			{
+				$details_data[$count][] = array($drow['name'], to_currency(round($drow['amount'],2)),'-');	
+			}										 
+		}	
+		$count = count($summary_data);					
+		$summary_data[] = array('TOTALS',to_currency(round($totals_debit,2)),to_currency(round($totals_credit,2)));	
+		$details_data[$count][] = array('-','-','-');	
+		// echo "<pre>";print_r($summary_data);
+		// echo "<pre>";print_r($details_data);die;
+		
+		$current_time = date('Y-m-d');
+		$current_time = date('Y-12-31',strtotime("-1 year",strtotime($current_time)));					
+		$data = array(
+			"title" =>"Financial Report",
+			"subtitle" =>"As at ".date('d F Y',strtotime($current_time)) ,
+			"headers" => $model->getDataColumns(),
+			"editable" => "sales",
+			"summary_data" => $summary_data,
+			"details_data" => $details_data,
+			"header_width" => intval(100 / count($headers['summary'])),
+			"overall_summary_data" => $model->getSummaryData(array('start_date'=>$current_time, 'end_date'=>$current_time, 'sale_type' => NULL, 'location_id' => 1)),
+			"export_excel" => $export_excel
+		);
+
+		$this->load->view("reports/new_tabular_details",$data);
+	}
+	// function financial_position()
+	// {		
+	// 	$data = $this->_get_common_report_data();
+	// 	$final_array = array();
+	// 	$sum_debits = 0;
+	// 	$sum_credits = 0;
+	// 	$filter = $this->generate_time();
+	// 	$sales = $this->Financials->get_sales($filter)->result_array();		
+	// 	$sales_tax = $this->Financials->get_sales_tax($filter)->result_array();		
+	// 	$assets = $this->Financials->get_assets($filter)->result_array();	
+		// $salaries = $this->Financials->get_salaries($filter)->result_array();			
+	// 	$nssf = $this->Financials->get_nssf($filter)->result_array();			
+	// 	$nhif = $this->Financials->get_nhif($filter)->result_array();			
+	// 	$paye = $this->Financials->get_paye($filter)->result_array();			
+
+	// 	$assets_depreciation = null;		
+		
+	// 	for ($i=0; $i <count($assets) ; $i++) { 
+	// 		$depreciation_rate = $assets[$i]['depreciation'];
+	// 		$name = $assets[$i]['name']." depreciation";
+	// 		$resale_price = $assets[$i]['resale_price'];
+	// 		$date_of_purchase = $assets[$i]['time'];
+	// 		$amount = $assets[$i]['amount'];
+	//     	$diff = strtotime(date("M d Y ")) - (strtotime($date_of_purchase));
+
+	// 	    $days_diff = floor($diff/3600/24);
+	// 	    $years = round(($days_diff/365),0);
 		    
-		    $depreciation = 0;		    
-		    $new_price = $amount;
-		    for ($j=1; $j <=$years ; $j++) { 
-		        $current_depreciation= $new_price * ($depreciation_rate/100);
-		        $depreciation +=$current_depreciation;                    
-		        $new_price -= $current_depreciation;                    
-		    }
-		    $current_value = $amount - $depreciation;  
-		    $assets_depreciation[] = array('name'=>$name,'amount'=>$depreciation); 
+	// 	    $depreciation = 0;		    
+	// 	    $new_price = $amount;
+	// 	    for ($j=1; $j <=$years ; $j++) { 
+	// 	        $current_depreciation= $new_price * ($depreciation_rate/100);
+	// 	        $depreciation +=$current_depreciation;                    
+	// 	        $new_price -= $current_depreciation;                    
+	// 	    }
+	// 	    $current_value = $amount - $depreciation;  
+	// 	    $assets_depreciation[] = array('name'=>$name,'amount'=>$depreciation); 
+	// 	}
+	// 	$assets = $this->add_array_type($assets,'debits');
+	// 	$sales_tax = $this->add_array_type($sales_tax,'debits');
+	// 	$assets_depreciation = $this->add_array_type($assets_depreciation,'credits');
+	// 	$sales = $this->add_array_type($sales,'credits');
+	// 	$salaries = $this->add_array_type($salaries,'Net pay Employees','name');
+	// 	$sales_tax = $this->add_array_type($sales_tax,'Tax to Pay','name');
+	// 	$salaries = $this->add_array_type($salaries,'debits');		
+	// 	$sales = $this->add_array_type($sales,'Sales','name');
+	// 	$nhif = $this->add_array_type($nhif,'NHIF','name');
+	// 	$nhif = $this->add_array_type($nhif,'debits');		
+	// 	$nssf = $this->add_array_type($nssf,'NSSF','name');
+	// 	$nssf = $this->add_array_type($nssf,'debits');		
+	// 	$paye = $this->add_array_type($paye,'PAYE','name');
+	// 	$paye = $this->add_array_type($paye,'debits');		
+	// 	$final_array = $this->push_array($final_array,$sales);
+	// 	$final_array = $this->push_array($final_array,$sales_tax);
+	// 	$final_array = $this->push_array($final_array,$assets);
+	// 	$final_array = $this->push_array($final_array,$assets_depreciation);
+	// 	$final_array = $this->push_array($final_array,$salaries);
+	// 	$final_array = $this->push_array($final_array,$nhif);
+	// 	$final_array = $this->push_array($final_array,$nssf);
+	// 	$final_array = $this->push_array($final_array,$paye);
+		
+	// 	if(count($final_array)>0){
+	// 		$final_array = call_user_func_array('array_merge', $final_array);
+	// 	    $this->aasort($final_array,"name");
+	// 		// echo "<pre>";print_r($final_array);die;
+	// 		foreach ($final_array as $key => $values) {											
+	// 			$amount = $values['amount'];
+	// 			$type = $values['type'];
+	// 			if($type=='debits'){						
+	// 				$sum_debits += $amount;						
+	// 			}else{
+	// 				$sum_credits += $amount;						
+	// 			}	
+	// 		}	
+	// 	}
+	//     $current_time = date('Y-m-d');
+	// 	$current_time = date('Y-12-31',strtotime("-1 year",strtotime($current_time)));
+	// 	$current_time = date('d F Y',strtotime($current_time));
+	// 	$data['title'] = "Financial Position";
+	// 	$data['subtitle'] = "As at ".$current_time;
+	// 	$data['final_array'] = $final_array;
+	// 	$data['totals'] = array('sum_debits'=>$sum_debits,'sum_credits'=>$sum_credits);
+	// 	$this->load->view("reports/financial_position",$data);
+	// }
+
+	function push_array($arrayfinal,$var){		
+		if(count($var)>0){
+			array_push($arrayfinal, $var);			
 		}
-		$assets = $this->add_array_type($assets,'debits');
-		$assets_depreciation = $this->add_array_type($assets_depreciation,'credits');
-		$sales = $this->add_array_type($sales,'debits');
-		array_push($final_array, $sales);
-		array_push($final_array, $assets);
-		array_push($final_array, $assets_depreciation);
-	    $final_array = call_user_func_array('array_merge', $final_array);
-	    $this->aasort($final_array,"name");
-		// echo "<pre>";print_r($final_array);die;
-		foreach ($final_array as $key => $values) {											
-			$amount = $values['amount'];
-			$type = $values['type'];
-			if($type=='debits'){						
-				$sum_debits += $amount;						
-			}else{
-				$sum_credits += $amount;						
-			}	
-		}
-		$data['title'] = "Financial Position";
-		$data['subtitle'] = "As at ".date('d F Y');
-		$data['final_array'] = $final_array;
-		$data['totals'] = array('sum_debits'=>$sum_debits,'sum_credits'=>$sum_credits);
-		$this->load->view("reports/financial_position",$data);
+		return $arrayfinal;
+	}
+
+	function generate_time($current_time=null,$previous_time=null){
+		$current_time = date('Y-m-d');
+		$current_time = date('Y-12-31',strtotime("-1 year",strtotime($current_time)));
+		$previous_time = date('Y-m-01',strtotime("-1 year",strtotime($current_time)));
+		$time = $previous_time." AND ".$current_time;
+		// echo "Current time $current_time and Previous Time $previous_time";die;
+		return $time;
 	}
 	function aasort (&$array, $key) {
 	    $sorter=array();
@@ -791,9 +1068,15 @@ class Reports extends Secure_area
 	}
 
 
-	function add_array_type($arrayname,$type){
-		foreach ($arrayname as &$array) {
-			$array['type'] =$type;
+	function add_array_type($arrayname,$type,$name=null){
+		if(count($arrayname)>0){
+			foreach ($arrayname as &$array) {
+				if (isset($name)) {
+					$array[$name] = $type;
+				}else{
+					$array['type'] =$type;
+				}
+			}
 		}
 		return $arrayname;
 	}

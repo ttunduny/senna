@@ -85,10 +85,13 @@ if(isset($error))
 		     			$nhif = ($item['nhif']);
 						$nssf = ($item['nssf']);
 
-						$taxcash = ($tax*$gross_sal)/100;
-						$nhifcash = ($nhif*$gross_sal)/100;
-						$nssfcash = ($nssf*$gross_sal)/100;
-
+						// $taxcash = ($tax*$gross_sal)/100;
+						// $nhifcash = ($nhif*$gross_sal)/100;
+						// $nssfcash = ($nssf*$gross_sal)/100;
+						$nssfcash = $nssf;
+			            $nhifcash = $nhif;
+			            $taxcash = $tax;
+           
 						$totalsfinal = 0;
 						
 						$totalsfinal = $gross_sal - $taxcash - $nhifcash - $nssfcash;								
@@ -133,9 +136,13 @@ if(isset($error))
 						$nssf = ($item['nssf']);
 						$totalsfinal = 0;
 
-						$taxcash = ($tax*$gross_sal)/100;
-						$nhifcash = ($nhif*$gross_sal)/100;
-						$nssfcash = ($nssf*$gross_sal)/100;
+						// $taxcash = ($tax*$gross_sal)/100;
+						// $nhifcash = ($nhif*$gross_sal)/100;
+						// $nssfcash = ($nssf*$gross_sal)/100;
+						$nssfcash = $nssf;
+			            $nhifcash = $nhif;
+			            $taxcash = $tax;
+           
 													
 												
 						$totalsfinal = $gross_sal - $taxcash - $nhifcash - $nssfcash;

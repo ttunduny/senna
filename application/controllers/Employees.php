@@ -61,6 +61,7 @@ class Employees extends Person_controller
 	*/
 	function save($employee_id=-1)
 	{
+		// echo "<pre>";print_r($_POST);die;
 		$person_data = array(
 			'first_name'=>$this->input->post('first_name'),
 			'last_name'=>$this->input->post('last_name'),

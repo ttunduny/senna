@@ -246,10 +246,12 @@ class Salaries_lib
             $totalsfinal = 0;   
             $vat_amount = 0;
 
-            $nssfcash = ($nssf*$gross_sal)/100;
-            $nhifcash = ($nhif*$gross_sal)/100;
-            $taxcash = ($tax*$gross_sal)/100;
-
+            // $nssfcash = ($nssf*$gross_sal)/100;
+            // $nhifcash = ($nhif*$gross_sal)/100;
+            // $taxcash = ($tax*$gross_sal)/100;
+            $nssfcash = $nssf;
+            $nhifcash = $nhif;
+            $taxcash = $tax;
            
             $totalsfinal = round(($gross_sal- $nssfcash-$nhifcash-$taxcash),2);
      

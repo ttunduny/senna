@@ -62,7 +62,7 @@ class Supplier extends Person
 
 	public function get_all_expense($rows=0, $limit_from=0)
 	{
-		$this->db->select("expenses.expense_id as expense_id,people.person_id as person_id,people.first_name as first_name, people.last_name as last_name,expenses.name as name, expense_category.category_name as category_name, expenses.amount as amount, expenses.date_paid as date_paid");
+		$this->db->select("expenses.id as expense_id,people.person_id as person_id,people.first_name as first_name, people.last_name as last_name,expenses.name as name, expense_category.category_name as category_name, expenses.amount as amount, expenses.date_paid as date_paid");
 		$this->db->from('expenses');
 		$this->db->join('people', 'people.person_id = expenses.created_by', 'left');
 		$this->db->join('expense_category', 'expense_category.id = expenses.category', 'left');

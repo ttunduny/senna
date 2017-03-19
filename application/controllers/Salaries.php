@@ -333,19 +333,18 @@ class Salaries extends Secure_area
 				'nhif'=>$item['nhif'],
 				'nssf'=>$item['nssf'],
 				'tax'=>$item['tax'],
-				'net_sal'=>(100-($item['nhif']+$item['nssf']+$item['tax']))*($item['gross_sal']/100),
+				'net_sal'=>($item['gross_sal']-($item['nhif']+$item['nssf']+$item['tax']))	,
 				'pay_date'=>date('Y-m-d')	
 
 			);
-		$this->db->insert('salary',$salary_info);
-
+		$this->db->insert('salary',$salary_info);		
+		// echo "<pre>";print_r($salary_info);echo "</pre>"; 
+		}
 		$this->db->trans_complete();
 
 
 		$this->salaries_lib->empty_cart();
 		redirect('salaries');
-		// echo "<pre>";print_r($salary_info);echo "</pre>"; 
-		}
 	}
 
     function cancel_receiving()
