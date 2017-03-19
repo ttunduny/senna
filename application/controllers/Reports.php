@@ -787,7 +787,7 @@ class Reports extends Secure_area
 
 	// 	$this->load->view("reports/new_tabular_details",$data);
 	// }
-	function financial_position($export_excel=0)
+	function financial_position($export_excel=null)
 	{
 		$this->load->model('reports/Financial_reports');
 		$model = $this->Financial_reports;
@@ -934,14 +934,15 @@ class Reports extends Secure_area
 		$count = count($summary_data);					
 		$summary_data[] = array('TOTALS',to_currency(round($totals_debit,2)),to_currency(round($totals_credit,2)));	
 		$details_data[$count][] = array('-','-','-');	
-		// echo "<pre>";print_r($summary_data);
+		// echo "<pre>";print_r($summary_data);die;
 		// echo "<pre>";print_r($details_data);die;
 		
 		$current_time = date('Y-m-d');
 		$current_time = date('Y-12-31',strtotime("-1 year",strtotime($current_time)));					
+		$time = "As at ".date('d F Y',strtotime($current_time));
 		$data = array(
 			"title" =>"Financial Report",
-			"subtitle" =>"As at ".date('d F Y',strtotime($current_time)) ,
+			"subtitle" =>$time,
 			"headers" => $model->getDataColumns(),
 			"editable" => "sales",
 			"summary_data" => $summary_data,
@@ -950,8 +951,45 @@ class Reports extends Secure_area
 			"overall_summary_data" => $model->getSummaryData(array('start_date'=>$current_time, 'end_date'=>$current_time, 'sale_type' => NULL, 'location_id' => 1)),
 			"export_excel" => $export_excel
 		);
+		if(isset($export_excel)){
+			$this->generate_excel('Financial Report',$summary_data,$time);
+		}else{
+			$this->load->view("reports/new_tabular_details",$data);
+		}
+	}
+	function generate_excel($filename,$financial_array,$time){
+		$this->load->library('excel');		
+		$inputFileName = 'excel/financial_reports_template.xlsx';			    
+	    $excel2 = PHPExcel_IOFactory::createReader('Excel2007');
+		$excel2 = $excel2->load($inputFileName); // Empty Sheet
+		$excel2->setActiveSheetIndex(1);
+	   
+		$file_name =isset($file_name) ? $file_name: time().'.xls';
+		$objWriter = PHPExcel_IOFactory::createWriter($excel2, 'Excel5');
 
-		$this->load->view("reports/new_tabular_details",$data);
+		$excel2->setActiveSheetIndex(0);
+		$rows = array('B','C','D');
+		$excel2->getActiveSheet()->setCellValue($rows[0].'3',$time);
+		$row_count = 5;
+		for ($i=0; $i < count($financial_array); $i++) { 
+			$name = $financial_array[$i][0];
+			$debit = $financial_array[$i][1];
+			$credit = $financial_array[$i][2];
+			$excel2->getActiveSheet()->setCellValue($rows[0].$row_count,$name);
+            $excel2->getActiveSheet()->setCellValue($rows[1].$row_count,$debit);
+            $excel2->getActiveSheet()->setCellValue($rows[2].$row_count,$credit);
+            $row_count++;
+		}
+		
+		ob_end_clean();
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+		header("Cache-Control: no-store, no-cache, must-revalidate");
+		header("Cache-Control: post-check=0, pre-check=0", false);
+		header("Pragma: no-cache");	
+		header("Content-Disposition: attachment; filename=$file_name");	
+		$objWriter -> save('php://output');
+		$excel2 -> disconnectWorksheets();
+		unset($excel2);   
 	}
 	// function financial_position()
 	// {		

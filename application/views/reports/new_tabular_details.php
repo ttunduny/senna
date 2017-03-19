@@ -1,16 +1,11 @@
 <?php 
-//OJB: Check if for excel export process
-if($export_excel == 1){
-	ob_start();
-	$this->load->view("partial/header_excel");
-}else{
-	$this->load->view("partial/header");
-} 
+	$this->load->view("partial/header");	
 ?>
 <div id="page_title" style="margin-bottom:8px;"><span id="company_title"><img src="<?php echo base_url().'images/senna.jpg';?>" border="0" alt="Menubar Image " 
 				height="60" width="150"></span><br /></div>
 <div id="page_title" style="margin-bottom:8px;"><?php echo $title ?></div>
 <div id="page_subtitle" style="margin-bottom:8px;"><?php echo $subtitle ?></div>
+<div class="big_button "><a href="<?php echo base_url().'reports/financial_position/1';?>" target="_blank" ><span>Download Excel</span></a></div>
 <div id="table_holder">
 	<table class="tablesorter report" id="sortable_table">
 		<thead>
